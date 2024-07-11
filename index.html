@@ -1,32 +1,48 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Climate Predictor</title>
-        <script type="module" src="https://pyscript.net/snapshots/2023.11.1.RC3/core.js"></script>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <div id="content">
-            <h1>Climate Predictor</h1>
-            <div id="inner">
-                <select id="parameter-select">
-                    <option value="temperature_2m_max">High Temperature</option>
-                    <option value="temperature_2m_min">Low Temperature</option>
-                    <option value="apparent_temperature_max">Max Heat Index</option>
-                    <option value="apparent_temperature_min">Min Heat Index</option>
-                    <option value="precipitation_sum">Precipitation</option>
-                    <option value="rain_sum">Rainfall</option>
-                    <option value="snowfall_sum">Snowfall</option>
-                    <option value="windspeed_10m_max">Wind Speed</option>
-                </select> in
-                <input id="location-input">
-                <button id="go-button">Go!</button><br>
-                <div id="canvas" width="640" height="480"></div>
-                <p>Data from <a href='https://open-meteo.com'>Open-Meteo.com</a>, which uses data from the Copernicus Climate Change Service.</p>
-                <p>Location search from <a href='https://geocode.maps.co'>geocode.maps.co</a> which uses data from OpenStreeMap Nominatim.</p>
-            </div>
-        </div>
-        <script type="py" src="main.py" config="pyscript.json" target="canvas"></script>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Climate Predictor</title>
+    <script
+      type="module"
+      src="https://pyscript.net/snapshots/2023.11.1.RC3/core.js"
+    ></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="content">
+      <h1>Climate Predictor</h1>
+      <div id="inner">
+        <select id="parameter-select">
+          <option value="temperature_2m_max">High Temperature</option>
+          <option value="temperature_2m_min">Low Temperature</option>
+          <option value="apparent_temperature_max">Max Heat Index</option>
+          <option value="apparent_temperature_min">Min Heat Index</option>
+          <option value="precipitation_sum">Precipitation</option>
+          <option value="rain_sum">Rainfall</option>
+          <option value="snowfall_sum">Snowfall</option>
+          <option value="windspeed_10m_max">Wind Speed</option>
+        </select>
+        in
+        <input id="location-input" />
+        <button id="go-button">Go!</button><br />
+        <div id="canvas" width="640" height="480"></div>
+        <p>
+          Data from <a href="https://open-meteo.com">Open-Meteo.com</a>, which
+          uses data from the Copernicus Climate Change Service.
+        </p>
+        <p>
+          Location search from
+          <a href="https://geocode.maps.co">geocode.maps.co</a> which uses data
+          from OpenStreetMap Nominatim.
+        </p>
+      </div>
+    </div>
+    <script
+      type="py"
+      src="main.py"
+      config="pyscript.json"
+      target="canvas"
+    ></script>
+  </body>
 </html>

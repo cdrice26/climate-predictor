@@ -1,45 +1,47 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 800px;
 }
 #content {
-    border: 3px solid lightblue;
-    color: lightblue;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    border-radius: 15px;
+  border: 3px solid #3e74b3;
+  color: #3e74b3;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
+    'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  border-radius: 15px;
 }
 #content h1 {
-    background-color: lightblue;
-    color: white;
-    margin: 0;
-    padding: 10px;
-    border-radius: 10px 10px 0 0;
+  background-color: #3e74b3;
+  color: white;
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
 }
-#content input, select {
-    border: 1px solid lightblue;
-    color: lightblue;
+#content input,
+select {
+  border: 1px solid #3e74b3;
+  color: #3e74b3;
 }
 
 #content button {
-    background-color: lightblue;
-    color: white;
-    border: none;
+  background-color: #3e74b3;
+  color: white;
+  border: none;
 }
 
 #inner * {
-    border-radius: 3px;
-    font-size: 15px;
+  border-radius: 3px;
+  font-size: 15px;
 }
 
 #inner {
-    padding: 10px;
+  padding: 10px;
 }
 
 #canvas {
-    background-color: rgb(240, 240, 240);
-    margin-top: 10px;
-    width: 640px;
-    height: 480px;
+  background-color: rgb(240, 240, 240);
+  margin-top: 10px;
+  width: 640px;
+  height: 480px;
 }
