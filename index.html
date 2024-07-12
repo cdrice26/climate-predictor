@@ -12,7 +12,7 @@
   <body>
     <div id="content">
       <h1>Climate Predictor</h1>
-      <div id="inner">
+      <div class="inner">
         <select id="parameter-select">
           <option value="temperature_2m_max">High Temperature</option>
           <option value="temperature_2m_min">Low Temperature</option>
@@ -25,7 +25,10 @@
         </select>
         in
         <input id="location-input" />
-        <button id="go-button">Go!</button><br />
+        <button id="go-button">Go!</button><br /><br />
+        Start In: <input type="number" id="start-year-input" value="1940" />
+        End In: <input type="number" id="end-year-input" value="2023" /><br /><br />
+        Moving Average of <input type="number" id="moving-average-input" value="1" min="1" max="30" step="1" /> years <br />
         <div id="canvas" width="640" height="480"></div>
         <p>
           Data from <a href="https://open-meteo.com">Open-Meteo.com</a>, which
@@ -36,7 +39,7 @@
           <a href="https://geocode.maps.co">geocode.maps.co</a> which uses data
           from OpenStreetMap Nominatim.
         </p>
-      </div>
+      <div>
     </div>
     <script
       type="py"
@@ -44,5 +47,8 @@
       config="pyscript.json"
       target="canvas"
     ></script>
+    <script>
+      document.getElementById('end-year-input').value = new Date().getFullYear().toString();
+    </script>
   </body>
 </html>

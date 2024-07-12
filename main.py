@@ -47,6 +47,8 @@ def geocode(location_string):
 # Gets the relevant weather data for a specified location
 def get_weather_data(location, parameter):
 
+    print(location)
+
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date=1940-01-01&end_date={str(int(datetime.now().year) - 1)}-12-31&daily={parameter}&timezone=auto'
 
@@ -54,6 +56,8 @@ def get_weather_data(location, parameter):
         data = requests.get(url).json()
     except:
         return "Error fetching weather data"
+
+    print(data)
 
     # Get the dates and values
     dates = data["daily"]["time"]
@@ -99,18 +103,39 @@ def get_weather_data(location, parameter):
 
 
 # Graph the data and run linear regression
-def graph(data, parameter, location):
+def graph(data, parameter, location, **kwargs):
+    start_year = kwargs.get("start_year", data["start_year"])
+    if start_year < data["start_year"]:
+        start_year = data["start_year"]
+    if start_year > data["end_year"]:
+        start_year = data["end_year"]
+    end_year = kwargs.get("end_year", data["end_year"])
+    if end_year < data["start_year"]:
+        end_year = data["start_year"]
+    if end_year > data["end_year"]:
+        end_year = data["end_year"]
+    print(start_year, end_year)
+    moving_average = kwargs.get("moving_average", 1)
     plt.clf()
     document.getElementById("canvas").innerHTML = ""
     fig, ax = plt.subplots()
     units = data["units"]
-    xvals = range(data["start_year"], data["end_year"])
-    yvals = data["values"]
+    xvals = []
+    yvals = []
+    for year in range(start_year - data["start_year"], end_year - data["start_year"]):
+        if year - moving_average + 1 < 0 or year - moving_average + 1 >= len(
+            data["values"]
+        ):
+            continue
+        xvals.append(year + data["start_year"])
+        yvals.append(
+            sum(data["values"][year - moving_average + 1 : year + 1]) / moving_average
+        )
     reg = lin_reg(xvals, yvals)
     parameter_name = get_parameter_name(parameter)
     plt.title(f"{parameter_name} in {location} ({units})")
     graph_data(xvals, yvals)
-    graph_reg(reg["m"], reg["b"], data["start_year"], data["end_year"])
+    graph_reg(reg["m"], reg["b"], start_year, end_year)
     return fig
 
 
@@ -145,6 +170,16 @@ def run():
     parameter = document.getElementById("parameter-select").value
     location_string = document.getElementById("location-input").value
     location = geocode(location_string)
+    start_year = int(document.getElementById("start-year-input").value)
+    end_year = int(document.getElementById("end-year-input").value)
+    moving_average = int(document.getElementById("moving-average-input").value)
     data = get_weather_data(location, parameter)
-    fig = graph(data, parameter, location_string)
+    fig = graph(
+        data,
+        parameter,
+        location_string,
+        start_year=start_year,
+        end_year=end_year,
+        moving_average=moving_average,
+    )
     display(fig)

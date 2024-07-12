@@ -30,12 +30,12 @@ select {
   border: none;
 }
 
-#inner * {
+.inner * {
   border-radius: 3px;
   font-size: 15px;
 }
 
-#inner {
+.inner {
   padding: 10px;
   text-align: center;
 }
