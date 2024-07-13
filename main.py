@@ -13,7 +13,7 @@ pyodide_http.patch_all()
 
 
 # Gets the latitude and longitude from search query location_string
-def geocode(location_string):
+def geocode(location_string: str) -> dict[str, float]:
 
     # Get the response from the geocoding api
     resp = requests.get(f"https://geocode.maps.co/search?q={location_string}")
@@ -25,7 +25,9 @@ def geocode(location_string):
 
 
 # Gets the relevant weather data for a specified location
-def get_weather_data(location, parameter):
+def get_weather_data(
+    location: dict[str, float], parameter: str
+) -> dict[str, str | int | list[float]]:
 
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date=1940-01-01&end_date={str(int(datetime.now().year) - 1)}-12-31&daily={parameter}&timezone=auto'
@@ -84,7 +86,12 @@ def get_weather_data(location, parameter):
 
 
 # Transform the data
-def transform_data(data, start_year, end_year, moving_average):
+def transform_data(
+    data: dict[str, str | int | list[float]],
+    start_year: int,
+    end_year: int,
+    moving_average: int,
+) -> tuple[list[float]]:
     xvals = []
     yvals = []
     for year in range(start_year - data["start_year"], end_year - data["start_year"]):
@@ -100,7 +107,7 @@ def transform_data(data, start_year, end_year, moving_average):
 
 
 # Set up the graph
-def set_up_graph(units, parameter, location):
+def set_up_graph(units: str, parameter: str, location: str) -> tuple[plt.Figure, str]:
     plt.clf()
     document.getElementById("canvas").innerHTML = ""
     fig, ax = plt.subplots()
@@ -110,14 +117,14 @@ def set_up_graph(units, parameter, location):
 
 
 # Graph the data
-def graph_data(xvals, yvals):
+def graph_data(xvals: list[float], yvals: list[float]) -> None:
     x = np.array(xvals)
     y = np.array(yvals)
     plt.plot(x, y)
 
 
 # Graph the regression line
-def graph_reg(m, b, xmin, xmax):
+def graph_reg(m: float, b: float, xmin: int, xmax: int) -> None:
     fn = lambda x: m * x + b
     f = np.vectorize(fn, excluded=["R", "cc"])
     x = np.arange(xmin - 20, xmax + 50)
@@ -126,7 +133,7 @@ def graph_reg(m, b, xmin, xmax):
 
 
 # Update the text on the screen
-def update_text_on_screen(reg, slope, units):
+def update_text_on_screen(reg: dict[str, float], slope: float, units: str) -> None:
     document.getElementById("results").style.display = "block"
     document.getElementById("r-squared").textContent = str(
         round(reg["r_squared"] * 100)
@@ -150,7 +157,7 @@ def update_text_on_screen(reg, slope, units):
 
 
 @when("click", "#go-button")
-def run():
+def run() -> None:
     parameter = document.getElementById("parameter-select").value
     location_string = document.getElementById("location-input").value
     location = geocode(location_string)

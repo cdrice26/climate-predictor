@@ -2,8 +2,9 @@ import pandas as pd
 import statsmodels.api as sm
 
 
-def regression_stats(x, y):
+def regression_stats(x: list[float], y: list[float]) -> dict[str, float]:
 
+    # Create a dictionary with the data
     data = {"X": x, "Y": y}
 
     # Create a DataFrame
