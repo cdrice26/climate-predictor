@@ -1,11 +1,11 @@
 from datetime import datetime
 
 import numpy as np
-import pyodide_http
+import pyodide_http  # type: ignore
 import requests
 import matplotlib.pyplot as plt
-from js import document, alert, get_parameter_name
-from pyscript import when, display
+from js import document, alert, get_parameter_name  # type: ignore
+from pyscript import when, display  # type: ignore
 from stats import regression_stats
 
 # Necessary to fix requests
