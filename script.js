@@ -1,7 +1,12 @@
 const $ = (query) => {
-  const results = document.querySelectorAll(query);
+  if (query.startsWith('#')) {
+    return document.getElementById(query.slice(1));
+  }
 
-  return results.length === 1 ? results[0] : results;
+  const results = document.querySelectorAll(query);
+  return Array.from(results);
 };
 
 $('#end-year-input').value = new Date().getFullYear().toString();
+
+window.dq = $;

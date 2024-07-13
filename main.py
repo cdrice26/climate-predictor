@@ -4,7 +4,7 @@ import numpy as np
 import pyodide_http  # type: ignore
 import requests
 import matplotlib.pyplot as plt
-from js import document, alert  # type: ignore
+from js import alert, dq  # type: ignore
 from pyscript import when, display  # type: ignore
 from stats import regression_stats
 
@@ -125,7 +125,7 @@ def set_up_graph(
     units: str, parameter: str, location: str, moving_average: int
 ) -> tuple[plt.Figure, str]:
     plt.clf()
-    document.getElementById("canvas").innerHTML = ""
+    dq("#canvas").innerHTML = ""
     fig, ax = plt.subplots()
     parameter_name = get_parameter_name(parameter)
     plt.title(
@@ -159,17 +159,15 @@ def update_text_on_screen(
     location: str,
     moving_average: int,
 ) -> None:
-    document.getElementById("results").style.display = "block"
-    document.getElementById("r-squared").textContent = str(
-        round(reg["r_squared"] * 100)
-    )
-    document.getElementById("change").textContent = str(abs(round(slope, 4)))
-    document.getElementById("significance").textContent = (
+    dq("#results").style.display = "block"
+    dq("#r-squared").textContent = str(round(reg["r_squared"] * 100))
+    dq("#change").textContent = str(abs(round(slope, 4)))
+    dq("#significance").textContent = (
         "statistically significant"
         if reg["p_value"] < 0.05
         else "not statistically significant"
     ) + f" (P = {round(reg['p_value'], 4)})"
-    for el in document.getElementsByClassName("direction"):
+    for el in dq(".direction"):
         if slope > 0:
             el.textContent = "increasing"
         elif slope < 0:
@@ -177,26 +175,26 @@ def update_text_on_screen(
         else:
             el.textContent = "stable"
 
-    for el in document.getElementsByClassName("units"):
+    for el in dq(".units"):
         el.textContent = units
 
-    for el in document.getElementsByClassName("parameter"):
+    for el in dq(".parameter"):
         el.textContent = get_parameter_name(parameter_name).lower() + (
             f" ({moving_average}-year moving average)" if moving_average > 1 else ""
         )
 
-    for el in document.getElementsByClassName("location"):
+    for el in dq(".location"):
         el.textContent = location
 
 
 @when("click", "#go-button")
 def run() -> None:
-    parameter = document.getElementById("parameter-select").value
-    location_string = document.getElementById("location-input").value
+    parameter = dq("#parameter-select").value
+    location_string = dq("#location-input").value
     location = geocode(location_string)
-    start_year = int(document.getElementById("start-year-input").value)
-    end_year = int(document.getElementById("end-year-input").value)
-    moving_average = int(document.getElementById("moving-average-input").value)
+    start_year = int(dq("#start-year-input").value)
+    end_year = int(dq("#end-year-input").value)
+    moving_average = int(dq("#moving-average-input").value)
     data = get_weather_data(location, parameter)
     xvals, yvals = transform_data(data, start_year, end_year, moving_average)
     reg = regression_stats(xvals, yvals)
