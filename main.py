@@ -4,12 +4,26 @@ import numpy as np
 import pyodide_http  # type: ignore
 import requests
 import matplotlib.pyplot as plt
-from js import document, alert, get_parameter_name  # type: ignore
+from js import document, alert  # type: ignore
 from pyscript import when, display  # type: ignore
 from stats import regression_stats
 
 # Necessary to fix requests
 pyodide_http.patch_all()
+
+
+# Gets the human-readable name of the open-meteo parameter
+def get_parameter_name(parameter):
+    parameter_mapping = {
+        "temperature_2m_max": "High Temperature",
+        "temperature_2m_min": "Low Temperature",
+        "apparent_temperature_max": "Max Heat Index",
+        "apparent_temperature_min": "Min Heat Index",
+        "precipitation_sum": "Precipitation",
+        "rain_sum": "Rainfall",
+        "snowfall_sum": "Snowfall",
+    }
+    return parameter_mapping.get(parameter, "Wind Speed")
 
 
 # Gets the latitude and longitude from search query location_string
@@ -107,12 +121,16 @@ def transform_data(
 
 
 # Set up the graph
-def set_up_graph(units: str, parameter: str, location: str) -> tuple[plt.Figure, str]:
+def set_up_graph(
+    units: str, parameter: str, location: str, moving_average: int
+) -> tuple[plt.Figure, str]:
     plt.clf()
     document.getElementById("canvas").innerHTML = ""
     fig, ax = plt.subplots()
     parameter_name = get_parameter_name(parameter)
-    plt.title(f"{parameter_name} in {location} ({units})")
+    plt.title(
+        f"{parameter_name} in {location} ({units}){f' ({moving_average}-year moving average)' if moving_average > 1 else ''}"
+    )
     return fig, units
 
 
@@ -133,7 +151,14 @@ def graph_reg(m: float, b: float, xmin: int, xmax: int) -> None:
 
 
 # Update the text on the screen
-def update_text_on_screen(reg: dict[str, float], slope: float, units: str) -> None:
+def update_text_on_screen(
+    reg: dict[str, float],
+    slope: float,
+    units: str,
+    parameter_name: str,
+    location: str,
+    moving_average: int,
+) -> None:
     document.getElementById("results").style.display = "block"
     document.getElementById("r-squared").textContent = str(
         round(reg["r_squared"] * 100)
@@ -155,6 +180,14 @@ def update_text_on_screen(reg: dict[str, float], slope: float, units: str) -> No
     for el in document.getElementsByClassName("units"):
         el.textContent = units
 
+    for el in document.getElementsByClassName("parameter"):
+        el.textContent = get_parameter_name(parameter_name).lower() + (
+            f" ({moving_average}-year moving average)" if moving_average > 1 else ""
+        )
+
+    for el in document.getElementsByClassName("location"):
+        el.textContent = location
+
 
 @when("click", "#go-button")
 def run() -> None:
@@ -169,8 +202,8 @@ def run() -> None:
     reg = regression_stats(xvals, yvals)
     slope = reg["slope"]
     intercept = reg["intercept"]
-    fig, units = set_up_graph(data["units"], parameter, location_string)
+    fig, units = set_up_graph(data["units"], parameter, location_string, moving_average)
     graph_data(xvals, yvals)
     graph_reg(slope, intercept, start_year, end_year)
-    update_text_on_screen(reg, slope, units)
+    update_text_on_screen(reg, slope, units, parameter, location_string, moving_average)
     display(fig)
