@@ -2,7 +2,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 800px;
 }
 #content {
   border: 3px solid #3e74b3;
@@ -45,4 +44,8 @@ select {
   margin-top: 10px;
   width: 640px;
   height: 480px;
+}
+
+hr {
+  border-color: #3e74b3;
 }

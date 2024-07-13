@@ -4,32 +4,12 @@ import numpy as np
 import pyodide_http
 import requests
 import matplotlib.pyplot as plt
-from js import document
+from js import document, alert, get_parameter_name
 from pyscript import when, display
-from sklearn.linear_model import LinearRegression
+from stats import regression_stats
 
 # Necessary to fix requests
 pyodide_http.patch_all()
-
-
-# Converts the open-meteo name to a more human-readable format
-def get_parameter_name(parameter):
-    if parameter == "temperature_2m_max":
-        return "High Temperature"
-    elif parameter == "temperature_2m_min":
-        return "Low Temperature"
-    elif parameter == "apparent_temperature_max":
-        return "Max Heat Index"
-    elif parameter == "apparent_temperature_min":
-        return "Min Heat Index"
-    elif parameter == "precipitation_sum":
-        return "Precipitation"
-    elif parameter == "rain_sum":
-        return "Rainfall"
-    elif parameter == "snowfall_sum":
-        return "Snowfall"
-    else:
-        return "Wind Speed"
 
 
 # Gets the latitude and longitude from search query location_string
@@ -47,17 +27,18 @@ def geocode(location_string):
 # Gets the relevant weather data for a specified location
 def get_weather_data(location, parameter):
 
-    print(location)
-
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date=1940-01-01&end_date={str(int(datetime.now().year) - 1)}-12-31&daily={parameter}&timezone=auto'
 
     try:
         data = requests.get(url).json()
     except:
+        alert("Error fetching weather data")
         return "Error fetching weather data"
 
-    print(data)
+    if data.get("error") is not None:
+        alert("Error fetching weather data")
+        return "Error fetching weather data"
 
     # Get the dates and values
     dates = data["daily"]["time"]
@@ -102,24 +83,8 @@ def get_weather_data(location, parameter):
     }
 
 
-# Graph the data and run linear regression
-def graph(data, parameter, location, **kwargs):
-    start_year = kwargs.get("start_year", data["start_year"])
-    if start_year < data["start_year"]:
-        start_year = data["start_year"]
-    if start_year > data["end_year"]:
-        start_year = data["end_year"]
-    end_year = kwargs.get("end_year", data["end_year"])
-    if end_year < data["start_year"]:
-        end_year = data["start_year"]
-    if end_year > data["end_year"]:
-        end_year = data["end_year"]
-    print(start_year, end_year)
-    moving_average = kwargs.get("moving_average", 1)
-    plt.clf()
-    document.getElementById("canvas").innerHTML = ""
-    fig, ax = plt.subplots()
-    units = data["units"]
+# Transform the data
+def transform_data(data, start_year, end_year, moving_average):
     xvals = []
     yvals = []
     for year in range(start_year - data["start_year"], end_year - data["start_year"]):
@@ -131,12 +96,17 @@ def graph(data, parameter, location, **kwargs):
         yvals.append(
             sum(data["values"][year - moving_average + 1 : year + 1]) / moving_average
         )
-    reg = lin_reg(xvals, yvals)
+    return xvals, yvals
+
+
+# Set up the graph
+def set_up_graph(units, parameter, location):
+    plt.clf()
+    document.getElementById("canvas").innerHTML = ""
+    fig, ax = plt.subplots()
     parameter_name = get_parameter_name(parameter)
     plt.title(f"{parameter_name} in {location} ({units})")
-    graph_data(xvals, yvals)
-    graph_reg(reg["m"], reg["b"], start_year, end_year)
-    return fig
+    return fig, units
 
 
 # Graph the data
@@ -144,16 +114,6 @@ def graph_data(xvals, yvals):
     x = np.array(xvals)
     y = np.array(yvals)
     plt.plot(x, y)
-
-
-# Run linear regression and return slope and y-intercept
-def lin_reg(xvals, yvals):
-    x = np.array(xvals).reshape(-1, 1)
-    y = np.array(yvals)
-    model = LinearRegression().fit(x, y)
-    m = model.coef_
-    b = model.intercept_
-    return {"m": m, "b": b}
 
 
 # Graph the regression line
@@ -165,6 +125,30 @@ def graph_reg(m, b, xmin, xmax):
     plt.plot(x, y)
 
 
+# Update the text on the screen
+def update_text_on_screen(reg, slope, units):
+    document.getElementById("results").style.display = "block"
+    document.getElementById("r-squared").textContent = str(
+        round(reg["r_squared"] * 100)
+    )
+    document.getElementById("change").textContent = str(abs(round(slope, 4)))
+    document.getElementById("significance").textContent = (
+        "statistically significant"
+        if reg["p_value"] < 0.05
+        else "not statistically significant"
+    ) + f" (P = {round(reg['p_value'], 4)})"
+    for el in document.getElementsByClassName("direction"):
+        if slope > 0:
+            el.textContent = "increasing"
+        elif slope < 0:
+            el.textContent = "decreasing"
+        else:
+            el.textContent = "stable"
+
+    for el in document.getElementsByClassName("units"):
+        el.textContent = units
+
+
 @when("click", "#go-button")
 def run():
     parameter = document.getElementById("parameter-select").value
@@ -174,12 +158,12 @@ def run():
     end_year = int(document.getElementById("end-year-input").value)
     moving_average = int(document.getElementById("moving-average-input").value)
     data = get_weather_data(location, parameter)
-    fig = graph(
-        data,
-        parameter,
-        location_string,
-        start_year=start_year,
-        end_year=end_year,
-        moving_average=moving_average,
-    )
+    xvals, yvals = transform_data(data, start_year, end_year, moving_average)
+    reg = regression_stats(xvals, yvals)
+    slope = reg["slope"]
+    intercept = reg["intercept"]
+    fig, units = set_up_graph(data["units"], parameter, location_string)
+    graph_data(xvals, yvals)
+    graph_reg(slope, intercept, start_year, end_year)
+    update_text_on_screen(reg, slope, units)
     display(fig)

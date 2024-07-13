@@ -1,3 +1,0 @@
-{
-    "packages": ["requests", "pyodide-http", "numpy", "matplotlib", "scikit-learn"]
-}

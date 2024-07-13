@@ -30,6 +30,20 @@
         End In: <input type="number" id="end-year-input" value="2023" /><br /><br />
         Moving Average of <input type="number" id="moving-average-input" value="1" min="1" max="30" step="1" /> years <br />
         <div id="canvas" width="640" height="480"></div>
+        <div id="results" style="display: none">
+          <p>
+            <span id="r-squared">0</span>% of the change in <span class="parameter"></span> in
+            <span class="location"></span><br /> can be explained by the linear relationship with the year.
+          </p>
+          <p>
+            The <span class="parameter"></span> is <span class="direction">increasing</span> by 
+            <span id="change">0</span><span class="units">degrees</span> per year.
+          </p>
+          <p>
+            This <span class="direction"></span> is <span id="significance"> with 95% confidence</span>.
+          </p>
+        </div>
+        <hr />
         <p>
           Data from <a href="https://open-meteo.com">Open-Meteo.com</a>, which
           uses data from the Copernicus Climate Change Service.
@@ -44,11 +58,9 @@
     <script
       type="py"
       src="main.py"
-      config="pyscript.json"
+      config="pyscript.toml"
       target="canvas"
     ></script>
-    <script>
-      document.getElementById('end-year-input').value = new Date().getFullYear().toString();
-    </script>
+    <script type="text/javascript" src="script.js"></script>
   </body>
 </html>

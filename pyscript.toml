@@ -1,0 +1,14 @@
+packages = [
+  "requests",
+  "pyodide-http",
+  "numpy",
+  "matplotlib",
+  "scikit-learn",
+  "scipy",
+  "pandas",
+  "statsmodels",
+]
+
+[files]
+"main.py" = "main.py"
+"stats.py" = "stats.py"
