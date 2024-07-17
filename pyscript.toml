@@ -12,3 +12,4 @@ packages = [
 [files]
 "main.py" = "main.py"
 "stats.py" = "stats.py"
+"api.py" = "api.py"

@@ -1,0 +1,70 @@
+[
+  {
+    "place_id": 339558965,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "boundingbox": [
+      "40.210579659174",
+      "40.530579659174",
+      "-75.44116109211",
+      "-75.12116109211"
+    ],
+    "lat": "40.37057965917431",
+    "lon": "-75.2811610921101",
+    "display_name": "Perkasie, Bucks County, Pennsylvania, 18944, United States",
+    "class": "place",
+    "type": "postcode",
+    "importance": 0.33499999999999996
+  },
+  {
+    "place_id": 133195489,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 1865623520,
+    "boundingbox": ["55.6670945", "55.6671945", "12.5789362", "12.5790362"],
+    "lat": "55.6671445",
+    "lon": "12.5789862",
+    "display_name": "18944, Klaksvigsgade, Islands Brygge, Ballonparken, Copenhagen, Copenhagen Municipality, Indre By, Capital Region of Denmark, 1559, Denmark",
+    "class": "man_made",
+    "type": "street_cabinet",
+    "importance": 0.11000999999999997
+  },
+  {
+    "place_id": 257852532,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 11204694828,
+    "boundingbox": ["42.5663925", "42.5664925", "-2.1903554", "-2.1902554"],
+    "lat": "42.5664425",
+    "lon": "-2.1903054",
+    "display_name": "18944, Calle la Serna, Los Arcos, Montejurra, Navarre, 31210, Spain",
+    "class": "emergency",
+    "type": "access_point",
+    "importance": 0.11000999999999997
+  },
+  {
+    "place_id": 28123718,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 631635312,
+    "boundingbox": ["-31.8388629", "-31.8387629", "115.8070068", "115.8071068"],
+    "lat": "-31.8388129",
+    "lon": "115.8070568",
+    "display_name": "18944, Ellersdale Avenue, Warwick, Joondalup, City of Joondalup, Western Australia, 6024, Australia",
+    "class": "highway",
+    "type": "bus_stop",
+    "importance": 0.11000999999999997
+  },
+  {
+    "place_id": 7594475,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 1181476663,
+    "boundingbox": ["-30.1585289", "-30.1584289", "-50.1988297", "-50.1987297"],
+    "lat": "-30.1584789",
+    "lon": "-50.1987797",
+    "display_name": "Cidreira, Rua Silveira Martins, Nazaré, Cidreira, Região Geográfica Imediata de Tramandaí - Osório, Aglomeração Urbana do Litoral Norte, Região Geográfica Intermediária de Porto Alegre, Rio Grande do Sul, South Region, 95595-000, Brazil",
+    "class": "man_made",
+    "type": "lighthouse",
+    "importance": 9.99999999995449e-6
+  }
+]
