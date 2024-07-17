@@ -1,0 +1,27 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.11  # Use the appropriate Python version
+    steps:
+      - checkout  # Checkout the code from the repository
+      
+      - run:
+          name: Install dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install requests pytest matplotlib pandas statsmodels
+
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            pytest test  # This assumes you're using pytest
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - build
