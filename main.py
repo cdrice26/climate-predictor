@@ -93,8 +93,12 @@ def run() -> None:
     reg = regression_stats(xvals, yvals)
     slope = reg["slope"]
     intercept = reg["intercept"]
-    fig, units = set_up_graph(data["units"], parameter, location_string, moving_average)
+    fig, units = set_up_graph(
+        data["units"], parameter, location["name"], moving_average
+    )
     graph_data(xvals, yvals)
     graph_reg(slope, intercept, start_year, end_year)
-    update_text_on_screen(reg, slope, units, parameter, location_string, moving_average)
+    update_text_on_screen(
+        reg, slope, units, parameter, location["name"], moving_average
+    )
     display(fig)

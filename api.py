@@ -17,14 +17,18 @@ def get_parameter_name(parameter):
 
 
 # Gets the latitude and longitude from search query location_string
-def geocode(location_string: str) -> dict[str, float]:
+def geocode(location_string: str) -> dict[str, float | str]:
 
     # Get the response from the geocoding api
     resp = requests.get(f"https://geocode.maps.co/search?q={location_string}")
     json = resp.json()
 
     # Just store the coordinates in a dictionary
-    location = {"lat": float(json[0]["lat"]), "lon": float(json[0]["lon"])}
+    location = {
+        "lat": float(json[0]["lat"]),
+        "lon": float(json[0]["lon"]),
+        "name": json[0]["display_name"].split(",")[0],
+    }
     return location
 
 
@@ -34,7 +38,7 @@ def get_weather_data(
     parameter: str,
     start_year: int = 1940,
     end_year: int = datetime.now().year,
-) -> dict[str, str | int | list[float]]:
+) -> dict[str, str | int | list[float]] | str:
 
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date={str(start_year - 5) if start_year - 5 >= 1940 else "1940"}-01-01&end_date={str(end_year - 1)}-12-31&daily={parameter}&timezone=auto'
@@ -48,9 +52,6 @@ def get_weather_data(
             raise ValueError("Empty response received from the API")
 
         data = response.json()  # Now it's safe to decode as JSON
-        print(data)
-        print(data["latitude"])  # Use key access
-        print(data["longitude"])
 
     except requests.exceptions.RequestException as e:
         return f"Error fetching weather data: {e}"

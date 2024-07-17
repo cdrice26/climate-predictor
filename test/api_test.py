@@ -27,6 +27,7 @@ def test_geocode(mocker):
     assert result == {
         "lat": pytest.approx(40.37057965917431),
         "lon": pytest.approx(-75.2811610921101),
+        "name": "Perkasie",
     }
 
 
