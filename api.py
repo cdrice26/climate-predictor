@@ -1,6 +1,10 @@
 import requests
 from datetime import datetime
-from env import api_key
+
+try:
+    from env import api_key
+except ModuleNotFoundError:
+    api_key = "fake_key"
 
 
 # Gets the human-readable name of the open-meteo parameter
