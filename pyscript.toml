@@ -13,3 +13,4 @@ packages = [
 "main.py" = "main.py"
 "stats.py" = "stats.py"
 "api.py" = "api.py"
+"env.py" = "env.py"

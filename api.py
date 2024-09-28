@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+from env import api_key
 
 
 # Gets the human-readable name of the open-meteo parameter
@@ -20,7 +21,21 @@ def get_parameter_name(parameter):
 def geocode(location_string: str) -> dict[str, float | str]:
 
     # Get the response from the geocoding api
-    resp = requests.get(f"https://geocode.maps.co/search?q={location_string}")
+    try:
+        resp = requests.get(
+            f"https://geocode.maps.co/search?q={location_string}&api_key={api_key}"
+        )
+        resp.raise_for_status()
+
+        if not resp.text:
+            raise ValueError("Empty response received from the API")
+
+    except requests.exceptions.RequestException as e:
+        raise ValueError("Error fetching geocoding data: " + str(e))
+    except ValueError as e:
+        raise ValueError("Error parsing geocoding data: " + str(e))
+
+    # Convert the response to JSON
     json = resp.json()
 
     # Just store the coordinates in a dictionary
