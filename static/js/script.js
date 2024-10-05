@@ -15,14 +15,15 @@ $('#go-button').addEventListener('click', async () => {
     `/data?parameter=${parameter}&location=${location}&start_year=${startYear}&end_year=${endYear}&moving_average=${movingAverage}`
   );
   const data = await results.json();
-  console.log(data);
+
   $('#results').style.display = 'block';
   $('#r-squared').textContent = Math.round(data.r_squared * 100);
   $('#change').textContent = Math.abs(data.slope.toFixed(4));
   $('#significance').textContent =
     (data.p_value < 0.05
       ? 'statistically significant'
-      : 'not statistically significant') + ` (P = ${data.p_value.toFixed(4)})`;
+      : 'not statistically significant') +
+    ` at \u03B1 = 0.05 (P = ${data.p_value.toFixed(4)})`;
   $('.parameter').forEach(
     (el) =>
       (el.textContent =
@@ -40,4 +41,32 @@ $('#go-button').addEventListener('click', async () => {
   );
   $('.location').forEach((el) => (el.textContent = data.location));
   $('.units').forEach((el) => (el.textContent = data.units));
+
+  const dataTrace = {
+    x: data.xvals,
+    y: data.yvals,
+    type: 'line',
+    name: data.parameter_name
+  };
+
+  const extendedX = data.xvals.concat(
+    new Array(20)
+      .fill(0)
+      .map((_x, i) => data.xvals[data.xvals.length - 1] + i + 1)
+  );
+
+  const regTrace = {
+    x: extendedX,
+    y: extendedX.map((x) => x * data.slope + data.intercept),
+    type: 'scatter',
+    name: 'Regression Line'
+  };
+
+  const graphData = [dataTrace, regTrace];
+
+  Plotly.newPlot('canvas', graphData, {
+    title: `${data.parameter_name} in ${data.location} from ${startYear} to ${endYear}`,
+    xaxis: { title: 'Year' },
+    yaxis: { title: `${data.parameter_name} (${data.units})` }
+  });
 });
