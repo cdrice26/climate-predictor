@@ -1,8 +1,11 @@
 import requests
 from datetime import datetime
+from dotenv import load_dotenv
+from os import getenv
 
 try:
-    from env import api_key
+    load_dotenv()
+    api_key = getenv("API_KEY")
 except ModuleNotFoundError:
     api_key = "fake_key"
 
