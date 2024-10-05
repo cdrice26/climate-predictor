@@ -1,9 +1,14 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 
-from api import geocode, get_weather_data, transform_data
+from api import geocode, get_parameter_name, get_weather_data, transform_data
 from stats import regression_stats
 
 app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
 @app.route("/data")
@@ -54,6 +59,7 @@ def get_data():
         "location": location["name"],
         "units": data["units"],
         "moving_average": moving_average,
+        "parameter_name": get_parameter_name(parameter),
     }, 200
 
 

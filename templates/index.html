@@ -3,11 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Climate Predictor</title>
-    <script
-      type="module"
-      src="https://pyscript.net/snapshots/2023.11.1.RC3/core.js"
-    ></script>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
   </head>
   <body>
     <div id="content">
@@ -55,12 +52,6 @@
         </p>
       <div>
     </div>
-    <script
-      type="py"
-      src="main.py"
-      config="pyscript.toml"
-      target="canvas"
-    ></script>
-    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
   </body>
 </html>
