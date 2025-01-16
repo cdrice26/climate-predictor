@@ -1,13 +1,12 @@
-import pandas as pd
-import statsmodels.api as sm
+import numpy as np
+from scipy import stats
 
 
 def regression_stats(x: list[float], y: list[float]) -> dict[str, float]:
     """
     Perform linear regression analysis on two sets of numerical data.
 
-    This function uses Ordinary Least Squares (OLS) regression to analyze
-    the relationship between two variables, calculating key statistical metrics.
+    This function uses scipy.stats for precise regression calculations.
 
     :param x: List of independent variable values (typically years)
     :type x: list[float]
@@ -15,58 +14,27 @@ def regression_stats(x: list[float], y: list[float]) -> dict[str, float]:
     :type y: list[float]
     :return: A dictionary containing regression statistics
     :rtype: dict[str, float]
-
-    The returned dictionary includes:
-    - 'slope': Rate of change of the dependent variable
-    - 'intercept': Y-intercept of the regression line
-    - 'r_squared': Coefficient of determination (proportion of variance explained)
-    - 'f_statistic': F-statistic for overall model significance
-    - 'p_value': P-value for the F-statistic
-
-    :raises ValueError: If input lists have different lengths or are empty
-    :raises TypeError: If input lists contain non-numeric values
-
-    :example:
-        >>> years = [1990, 1995, 2000, 2005, 2010]
-        >>> temperatures = [20.1, 20.5, 21.0, 21.6, 22.1]
-        >>> regression_stats(years, temperatures)
-        {
-            'slope': 0.24,
-            'intercept': 10.5,
-            'r_squared': 0.95,
-            'f_statistic': 45.6,
-            'p_value': 0.001
-        }
     """
     # Validate input
+    x = np.array(x, dtype=float)
+    y = np.array(y, dtype=float)
+
     if len(x) != len(y):
         raise ValueError("Input lists must have equal length")
     if len(x) == 0:
         raise ValueError("Input lists cannot be empty")
 
-    # Create a dictionary with the data
-    data = {"X": x, "Y": y}
+    # Perform linear regression using scipy.stats
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
-    # Create a DataFrame
-    df = pd.DataFrame(data)
-
-    # Add a constant to the model (for the intercept)
-    X = sm.add_constant(df["X"])
-
-    # Fit the regression model
-    model = sm.OLS(df["Y"], X).fit()
-
-    # Get results
-    slope = model.params["X"]
-    intercept = model.params["const"]
-    r_squared = model.rsquared
-    f_statistic = model.fvalue
-    p_value = model.f_pvalue
+    # Calculate F-statistic
+    n = len(x)
+    f_statistic = (r_value**2 / (1 - r_value**2)) * (n - 2)
 
     return {
         "slope": slope,
         "intercept": intercept,
-        "r_squared": r_squared,
+        "r_squared": r_value**2,
         "f_statistic": f_statistic,
         "p_value": p_value,
     }
