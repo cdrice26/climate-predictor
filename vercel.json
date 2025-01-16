@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/healthcheck", "dest": "app.py" },
+    {
+      "src": "/data",
+      "dest": "app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/$1"
+    }
+  ]
+}

@@ -4,6 +4,13 @@ from flask_cors import CORS
 from api import geocode, get_parameter_name, get_weather_data, transform_data
 from stats import regression_stats
 
+import sys
+import os
+
+# Ensure project root is in Python path
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+
 app = Flask(__name__)
 CORS(
     app,
@@ -16,6 +23,24 @@ CORS(
         }
     },
 )
+
+
+@app.route("/healthcheck")
+def health_check():
+    """
+    Simple health check route for debugging Vercel deployment
+    """
+    return (
+        jsonify(
+            {
+                "status": "ok",
+                "python_version": sys.version,
+                "project_root": project_root,
+                "sys_path": sys.path,
+            }
+        ),
+        200,
+    )
 
 
 @app.route("/data")

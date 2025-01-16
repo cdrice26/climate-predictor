@@ -5,3 +5,4 @@ env.py
 venv
 .env
 generate_licenses.py
+.vercel
