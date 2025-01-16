@@ -72,7 +72,10 @@ def get_data():
         moving_average = int(request.args.get("moving_average"))
     except Exception:
         return {"error": "Missing or invalid moving average"}, 400
-    data = get_weather_data(location, parameter, start_year, end_year)
+    try:
+        data = get_weather_data(location, parameter, start_year, end_year)
+    except Exception as e:
+        return {"error": "Error getting weather data: " + str(e)}, 400
     if type(data) == str:
         return {"error": data}, 400
     try:
