@@ -44,6 +44,13 @@
 - **License URL**: [https://www.scipy.org/scipylib/license.html](https://www.scipy.org/scipylib/license.html)
 - **Description**: Library used for scientific and technical computing
 
+## JavaScript Libraries
+### Plotly.js
+- **Version**: 2.35.2
+- **License**: MIT
+- **License URL**: [https://github.com/plotly/plotly.js/blob/master/LICENSE](https://github.com/plotly/plotly.js/blob/master/LICENSE)
+- **Description**: Open-source graphing library
+
 ## Licensing Notes
 - All libraries are used under their respective open-source licenses
 - For complete license texts, please refer to the individual project repositories
