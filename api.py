@@ -15,7 +15,21 @@ except ModuleNotFoundError:
 
 
 # Gets the human-readable name of the open-meteo parameter
-def get_parameter_name(parameter):
+def get_parameter_name(parameter: str) -> str:
+    """
+    Convert Open-Meteo parameter names to human-readable names.
+
+    This function maps technical parameter names used by the Open-Meteo API
+    to more user-friendly, descriptive names.
+
+    :param parameter: A string representing the Open-Meteo parameter name
+    :type parameter: str
+    :return: A human-readable name for the parameter
+    :rtype: str
+    :example:
+        >>> get_parameter_name('temperature_2m_max')
+        'High Temperature'
+    """
     parameter_mapping = {
         "temperature_2m_max": "High Temperature",
         "temperature_2m_min": "Low Temperature",
@@ -29,11 +43,22 @@ def get_parameter_name(parameter):
 
 
 class RateLimiter:
+    """
+    A decorator class to limit the rate of function calls.
+
+    This class implements a simple rate limiting mechanism that ensures
+    a minimum time interval between successive function calls.
+
+    :param min_interval: Minimum time (in seconds) between method calls, defaults to 1.0
+    :type min_interval: float, optional
+    """
+
     def __init__(self, min_interval=1.0):
         """
-        Create a rate limiter with a minimum interval between calls.
+        Initialize the RateLimiter with a specified minimum interval.
 
-        :param min_interval: Minimum time (in seconds) between method calls
+        :param min_interval: Minimum time between calls in seconds
+        :type min_interval: float, optional
         """
         self._lock = threading.Lock()
         self._last_call_time = 0.0
@@ -41,10 +66,12 @@ class RateLimiter:
 
     def __call__(self, func):
         """
-        Decorator to rate limit a function.
+        Decorator method to rate limit a function.
 
         :param func: Function to be rate limited
+        :type func: callable
         :return: Wrapped function with rate limiting
+        :rtype: callable
         """
 
         @wraps(func)
@@ -67,6 +94,10 @@ class RateLimiter:
 class GeocodeCache:
     """
     A class to manage geocoding with persistent caching.
+
+    This class provides a geocoding method with built-in caching to reduce
+    redundant API calls. It uses a singleton pattern to maintain a single
+    cache across multiple uses.
     """
 
     _instance = None
@@ -74,6 +105,9 @@ class GeocodeCache:
     def __new__(cls):
         """
         Implement singleton pattern to ensure only one cache instance exists.
+
+        :return: The single instance of the GeocodeCache
+        :rtype: GeocodeCache
         """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -85,8 +119,19 @@ class GeocodeCache:
         """
         Geocode a location with caching.
 
+        Converts a location string to geographic coordinates using an external
+        geocoding API. Results are cached to minimize repeated API calls.
+
         :param location_string: The location to geocode
-        :return: A dictionary with latitude, longitude, and location name
+        :type location_string: str
+        :return: A dictionary containing latitude, longitude, and location name
+        :rtype: dict
+        :raises ValueError: If there are issues with the API request or response
+
+        :example:
+            >>> geocoder = GeocodeCache()
+            >>> geocoder.geocode('New York, NY')
+            {'lat': 40.7127281, 'lon': -74.0060152, 'name': 'New York'}
         """
         # Normalize location string to handle case and whitespace variations
         normalized_location = location_string.strip().lower()
@@ -135,7 +180,28 @@ def get_weather_data(
     start_year: int = 1940,
     end_year: int = datetime.now().year,
 ) -> dict[str, str | int | list[float]] | str:
+    """
+    Retrieve historical weather data for a specific location and parameter.
 
+    Fetches daily weather data from the Open-Meteo Archive API for a given
+    location, parameter, and year range.
+
+    :param location: Dictionary containing latitude and longitude
+    :type location: dict[str, float]
+    :param parameter: Weather parameter to retrieve (e.g., 'temperature_2m_max')
+    :type parameter: str
+    :param start_year: First year of data to retrieve, defaults to 1940
+    :type start_year: int, optional
+    :param end_year: Last year of data to retrieve, defaults to current year
+    :type end_year: int, optional
+    :return: Dictionary containing weather data or error message
+    :rtype: dict or str
+
+    :example:
+        >>> location = {'lat': 40.7128, 'lon': -74.0060}
+        >>> get_weather_data(location, 'temperature_2m_max')
+        {'start_year': 1940, 'end_year': 2024, 'values': [...], 'units': '°C'}
+    """
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date={str(start_year - 5) if start_year - 5 >= 1940 else "1940"}-01-01&end_date={str(end_year - 1)}-12-31&daily={parameter}&timezone=auto'
 
@@ -203,13 +269,34 @@ def get_weather_data(
     }
 
 
-# Transform the data
 def transform_data(
     data: dict[str, str | int | list[float]],
     start_year: int,
     end_year: int,
     moving_average: int,
 ) -> tuple[list[float]]:
+    """
+    Transform weather data for statistical analysis.
+
+    Prepares weather data for regression analysis by filtering years
+    and applying a moving average.
+
+    :param data: Dictionary containing weather data
+    :type data: dict[str, str | int | list[float]]
+    :param start_year: First year of data to include
+    :type start_year: int
+    :param end_year: Last year of data to include
+    :type end_year: int
+    :param moving_average: Number of years to use in moving average calculation
+    :type moving_average: int
+    :return: Tuple of x and y values for regression analysis
+    :rtype: tuple[list[float]]
+
+    :example:
+        >>> data = {'start_year': 1950, 'end_year': 2020, 'values': [...]}
+        >>> transform_data(data, 1970, 2010, 5)
+        ([1970, 1975, 1980, ...], [22.5, 23.1, 23.7, ...])
+    """
     xvals = []
     yvals = []
     # Calculate the number of years we need to iterate over

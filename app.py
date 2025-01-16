@@ -8,11 +8,46 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    """
+    Render the main index page of the Climate Predictor application.
+
+    This route serves the main HTML template for the web application,
+    which allows users to interact with climate data visualization.
+
+    :return: Rendered HTML template for the index page
+    :rtype: flask.Response
+    """
     return render_template("index.html")
 
 
 @app.route("/data")
 def get_data():
+    """
+    Process and retrieve climate data based on user-provided parameters.
+
+    This route handles the data retrieval and processing workflow:
+    1. Validates input parameters (location, parameter, years, moving average)
+    2. Geocodes the location
+    3. Retrieves historical weather data
+    4. Transforms data for regression analysis
+    5. Calculates regression statistics
+
+    :return: A JSON response containing:
+        - Regression statistics (slope, intercept, r-squared)
+        - Data values and metadata
+        - HTTP status code
+    :rtype: tuple[dict, int]
+    :raises: Various exceptions for invalid inputs or processing errors
+
+    :example:
+        GET /data?parameter=temperature_2m_max&location=New%20York&start_year=1950&end_year=2020&moving_average=5
+        Returns: {
+            'slope': 0.05,
+            'intercept': 10.2,
+            'r_squared': 0.75,
+            ...
+        }
+    """
     try:
         parameter = request.args.get("parameter")
     except Exception:
@@ -64,4 +99,9 @@ def get_data():
 
 
 if __name__ == "__main__":
+    """
+    Entry point for running the Flask application.
+
+    Starts the web server on port 5500 when the script is run directly.
+    """
     app.run(port=5500)
