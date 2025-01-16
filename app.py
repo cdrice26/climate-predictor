@@ -1,23 +1,21 @@
-from flask import Flask, request, render_template
+from flask import Flask, request
+from flask_cors import CORS
 
 from api import geocode, get_parameter_name, get_weather_data, transform_data
 from stats import regression_stats
 
 app = Flask(__name__)
-
-
-@app.route("/")
-def index():
-    """
-    Render the main index page of the Climate Predictor application.
-
-    This route serves the main HTML template for the web application,
-    which allows users to interact with climate data visualization.
-
-    :return: Rendered HTML template for the index page
-    :rtype: flask.Response
-    """
-    return render_template("index.html")
+CORS(
+    app,
+    resources={
+        r"/data": {
+            "origins": [
+                "http://localhost:5173",
+                "https://climate-predictor.vercel.app",
+            ]
+        }
+    },
+)
 
 
 @app.route("/data")
@@ -105,6 +103,6 @@ if __name__ == "__main__":
     """
     Entry point for running the Flask application.
 
-    Starts the web server on port 5500 when the script is run directly.
+    Starts the web server on port 5173 when the script is run directly.
     """
-    app.run(port=5500)
+    app.run(port=5173)
