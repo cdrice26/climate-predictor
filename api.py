@@ -1,6 +1,9 @@
 import requests
 from datetime import datetime
 from os import getenv
+import time
+import threading
+from functools import wraps
 
 try:
     from dotenv import load_dotenv
@@ -25,11 +28,74 @@ def get_parameter_name(parameter):
     return parameter_mapping.get(parameter, "Wind Speed")
 
 
-# Gets the latitude and longitude from search query location_string
-def geocode(location_string: str) -> dict[str, float | str]:
+class RateLimiter:
+    def __init__(self, min_interval=1.0):
+        """
+        Create a rate limiter with a minimum interval between calls.
 
-    # Get the response from the geocoding api
-    try:
+        :param min_interval: Minimum time (in seconds) between method calls
+        """
+        self._lock = threading.Lock()
+        self._last_call_time = 0.0
+        self._min_interval = min_interval
+
+    def __call__(self, func):
+        """
+        Decorator to rate limit a function.
+
+        :param func: Function to be rate limited
+        :return: Wrapped function with rate limiting
+        """
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with self._lock:
+                current_time = time.time()
+                time_since_last_call = current_time - self._last_call_time
+
+                # Wait if not enough time has passed since the last call
+                if time_since_last_call < self._min_interval:
+                    time.sleep(self._min_interval - time_since_last_call)
+
+                # Update the last call time and execute the function
+                self._last_call_time = time.time()
+                return func(*args, **kwargs)
+
+        return wrapper
+
+
+class GeocodeCache:
+    """
+    A class to manage geocoding with persistent caching.
+    """
+
+    _instance = None
+
+    def __new__(cls):
+        """
+        Implement singleton pattern to ensure only one cache instance exists.
+        """
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._cache = {}
+        return cls._instance
+
+    @RateLimiter(min_interval=1.0)
+    def geocode(self, location_string: str) -> dict[str, float | str]:
+        """
+        Geocode a location with caching.
+
+        :param location_string: The location to geocode
+        :return: A dictionary with latitude, longitude, and location name
+        """
+        # Normalize location string to handle case and whitespace variations
+        normalized_location = location_string.strip().lower()
+
+        # Check if location is already in cache
+        if normalized_location in self._cache:
+            return self._cache[normalized_location]
+
+        # Get the response from the geocoding api
         resp = requests.get(
             f"https://geocode.maps.co/search?q={location_string}&api_key={api_key}"
         )
@@ -38,24 +104,31 @@ def geocode(location_string: str) -> dict[str, float | str]:
         if not resp.text:
             raise ValueError("Empty response received from the API")
 
-    except requests.exceptions.RequestException as e:
-        raise ValueError("Error fetching geocoding data: " + str(e))
-    except ValueError as e:
-        raise ValueError("Error parsing geocoding data: " + str(e))
+        # Convert the response to JSON
+        json = resp.json()
 
-    # Convert the response to JSON
-    json = resp.json()
+        # Just store the coordinates in a dictionary
+        location = {
+            "lat": float(json[0]["lat"]),
+            "lon": float(json[0]["lon"]),
+            "name": json[0]["display_name"].split(",")[0],
+        }
 
-    # Just store the coordinates in a dictionary
-    location = {
-        "lat": float(json[0]["lat"]),
-        "lon": float(json[0]["lon"]),
-        "name": json[0]["display_name"].split(",")[0],
-    }
-    return location
+        # Cache the result using normalized location string
+        self._cache[normalized_location] = location
+
+        return location
+
+
+geocode = GeocodeCache().geocode
+
+
+# Create a rate limiter for weather data
+weather_data_rate_limiter = RateLimiter(min_interval=0.25)
 
 
 # Gets the relevant weather data for a specified location
+@weather_data_rate_limiter
 def get_weather_data(
     location: dict[str, float],
     parameter: str,
@@ -66,24 +139,14 @@ def get_weather_data(
     # Get the weather data from the api
     url = f'https://archive-api.open-meteo.com/v1/archive?latitude={str(location["lat"])}&longitude={str(location["lon"])}&start_date={str(start_year - 5) if start_year - 5 >= 1940 else "1940"}-01-01&end_date={str(end_year - 1)}-12-31&daily={parameter}&timezone=auto'
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raises an error for HTTP codes 4xx/5xx
+    response = requests.get(url)
+    response.raise_for_status()  # Raises an error for HTTP codes 4xx/5xx
 
-        # Check if the response body is empty
-        if not response.text:
-            raise ValueError("Empty response received from the API")
+    # Check if the response body is empty
+    if not response.text:
+        raise ValueError("Empty response received from the API")
 
-        data = response.json()  # Now it's safe to decode as JSON
-
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching weather data: {e}"
-    except ValueError as ve:
-        return str(ve)
-    except KeyError as ke:
-        return f"Key error: {ke} in the response data"
-    except Exception as ex:
-        return f"An unexpected error occurred: {ex}"
+    data = response.json()  # Now it's safe to decode as JSON
 
     if data.get("error") is not None:
         return "Error fetching weather data"

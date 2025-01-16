@@ -49,3 +49,8 @@ select {
 hr {
   border-color: #3e74b3;
 }
+
+.error {
+  color: red;
+  display: none;
+}

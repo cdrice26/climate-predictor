@@ -14,9 +14,17 @@ $('#go-button').addEventListener('click', async () => {
   const results = await fetch(
     `/data?parameter=${parameter}&location=${location}&start_year=${startYear}&end_year=${endYear}&moving_average=${movingAverage}`
   );
+  if (!results.ok) {
+    $('#results').style.display = 'none';
+    $('#canvas').style.display = 'none';
+    $('.error').forEach((el) => (el.style.display = 'block'));
+    return;
+  }
   const data = await results.json();
 
   $('#results').style.display = 'block';
+  $('#canvas').style.display = 'block';
+  $('.error').forEach((el) => (el.style.display = 'none'));
   $('#r-squared').textContent = Math.round(data.r_squared * 100);
   $('#change').textContent = Math.abs(data.slope.toFixed(4));
   $('#significance').textContent =
