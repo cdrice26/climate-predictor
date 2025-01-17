@@ -9,3 +9,6 @@ This is a Python Flask app. To use it, install the dependencies from ```requirem
 
 # Data Sources
 The data is provided by [Open-Meteo](https://open-meteo.com) and the [Copernicus Climate Change Service](https://climate.copernicus.eu/). 
+
+# Licensing
+Climate Predictor is licensed under the MIT License. However, it uses libraries that are licensed under the Apache 2.0 and BSD 3-Clause licenses, and so those licenses are included as well. You can also check LIBRARY_LICENSES.md for a list of libraries and links to their respective licenses.
